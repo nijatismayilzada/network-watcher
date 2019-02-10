@@ -78,13 +78,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             cursor.moveToFirst();
 
         if (cursor.getCount() == 0) {
-            ListElement watchedAppp = null;
-            return watchedAppp;
+            return null;
         }
 
-        ListElement watchedApp = new ListElement(cursor.getInt(0), cursor.getString(1), strToBool(cursor.getString(2)), strToBool(cursor.getString(3)));
         // return contact
-        return watchedApp;
+        return new ListElement(cursor.getInt(0), cursor.getString(1), strToBool(cursor.getString(2)), strToBool(cursor.getString(3)));
     }
 
     boolean strToBool(String str){

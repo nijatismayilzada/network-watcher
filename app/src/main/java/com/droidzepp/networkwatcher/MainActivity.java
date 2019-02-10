@@ -22,9 +22,9 @@ public class MainActivity extends ListActivity {
 
         PackageManager packageManager = getPackageManager();
         List<ApplicationInfo> listApps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
-        ArrayList<ListElement> apps = new ArrayList();
+        ArrayList<ListElement> apps = new ArrayList<>();
 
-        for (ApplicationInfo app : listApps){
+        for (ApplicationInfo app : listApps) {
             if (db.getWatchedApp(app.uid) != null)
                 apps.add(new ListElement(app.uid, app.packageName, db.getWatchedApp(app.uid).isWifiSelected(), db.getWatchedApp(app.uid).isMobDataSelected()));
             else
