@@ -1,4 +1,4 @@
-package com.droidzepp.networkwatcher;
+package com.droidzepp.networkwatcher.service;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,18 +8,22 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
+import com.droidzepp.networkwatcher.R;
+import com.droidzepp.networkwatcher.model.WatchedApp;
+import com.droidzepp.networkwatcher.repository.DatabaseHandler;
+
 import java.util.ArrayList;
 
-public class MyArrayAdapter extends ArrayAdapter<ListElement> {
+public class MyArrayAdapter extends ArrayAdapter<WatchedApp> {
     private final Context mContext;
-    private ArrayList<ListElement> appList;
-    DatabaseHandler db;
+    private ArrayList<WatchedApp> appList;
+    private DatabaseHandler db;
 
     public MyArrayAdapter(Context context, int textViewResourceId,
-                          ArrayList<ListElement> appList, DatabaseHandler db) {
+                          ArrayList<WatchedApp> appList, DatabaseHandler db) {
         super(context, textViewResourceId, appList);
         this.mContext = context;
-        this.appList = new ArrayList<ListElement>();
+        this.appList = new ArrayList<>();
         this.appList.addAll(appList);
         this.db = db;
     }
@@ -40,19 +44,19 @@ public class MyArrayAdapter extends ArrayAdapter<ListElement> {
             convertView = vi.inflate(R.layout.entry, null);
 
             holder = new ViewHolder();
-            holder.appName = (TextView) convertView.findViewById(R.id.txtAppName);
-            holder.wifi = (CheckBox) convertView.findViewById(R.id.chkWifi);
-            holder.mobData = (CheckBox) convertView.findViewById(R.id.chkMobile);
+            holder.appName = convertView.findViewById(R.id.txtAppName);
+            holder.wifi = convertView.findViewById(R.id.chkWifi);
+            holder.mobData = convertView.findViewById(R.id.chkMobile);
             convertView.setTag(holder);
 
             holder.wifi.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     CheckBox wf = (CheckBox) v;
-                    ListElement a = (ListElement) wf.getTag();
+                    WatchedApp a = (WatchedApp) wf.getTag();
                     a.setWifiSelected(wf.isChecked());
-                    if (db.getWatchedApp(a.getUID()) != null) {
+                    if (db.getWatchedApp(a.getUid()) != null) {
                         db.updateWatchedApp(a);
-                        if (a.isMobDataSelected() == false && a.isWifiSelected() == false)
+                        if (!a.isMobDataSelected() && !a.isWifiSelected())
                             db.deleteWatchedApp(a);
                     }
                     else
@@ -65,9 +69,9 @@ public class MyArrayAdapter extends ArrayAdapter<ListElement> {
             holder.mobData.setOnClickListener(new View.OnClickListener(){
                 public void onClick(View v){
                     CheckBox mb = (CheckBox) v;
-                    ListElement a = (ListElement) mb.getTag();
+                    WatchedApp a = (WatchedApp) mb.getTag();
                     a.setMobDataSelected(mb.isChecked());
-                    if (db.getWatchedApp(a.getUID()) != null)
+                    if (db.getWatchedApp(a.getUid()) != null)
                         db.updateWatchedApp(a);
                     else
                         db.addAppToWatch(a);
@@ -78,7 +82,7 @@ public class MyArrayAdapter extends ArrayAdapter<ListElement> {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        ListElement application = appList.get(position);
+        WatchedApp application = appList.get(position);
         holder.appName.setText(application.getAppName());
         holder.wifi.setChecked(application.isWifiSelected());
         holder.mobData.setChecked(application.isMobDataSelected());

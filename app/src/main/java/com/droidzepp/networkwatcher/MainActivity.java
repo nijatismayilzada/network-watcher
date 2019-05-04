@@ -8,6 +8,11 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.droidzepp.networkwatcher.model.WatchedApp;
+import com.droidzepp.networkwatcher.repository.DatabaseHandler;
+import com.droidzepp.networkwatcher.service.MyArrayAdapter;
+import com.droidzepp.networkwatcher.service.WatcherService;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,13 +27,13 @@ public class MainActivity extends ListActivity {
 
         PackageManager packageManager = getPackageManager();
         List<ApplicationInfo> listApps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
-        ArrayList<ListElement> apps = new ArrayList<>();
+        ArrayList<WatchedApp> apps = new ArrayList<>();
 
         for (ApplicationInfo app : listApps) {
             if (db.getWatchedApp(app.uid) != null)
-                apps.add(new ListElement(app.uid, app.packageName, db.getWatchedApp(app.uid).isWifiSelected(), db.getWatchedApp(app.uid).isMobDataSelected()));
+                apps.add(new WatchedApp(app.uid, app.packageName, db.getWatchedApp(app.uid).isWifiSelected(), db.getWatchedApp(app.uid).isMobDataSelected()));
             else
-                apps.add(new ListElement(app.uid, app.packageName, false, false));
+                apps.add(new WatchedApp(app.uid, app.packageName, false, false));
         }
 
         MyArrayAdapter adapter = new MyArrayAdapter(this, R.layout.entry, apps, db);

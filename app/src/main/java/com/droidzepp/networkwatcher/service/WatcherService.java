@@ -1,4 +1,4 @@
-package com.droidzepp.networkwatcher;
+package com.droidzepp.networkwatcher.service;
 
 import android.app.Service;
 import android.content.Context;
@@ -10,6 +10,9 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.droidzepp.networkwatcher.model.WatchedApp;
+import com.droidzepp.networkwatcher.repository.DatabaseHandler;
+
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -20,7 +23,7 @@ import java.util.TimerTask;
 public class WatcherService extends Service {
 
     private Timer timer = new Timer();
-    DatabaseHandler db = new DatabaseHandler(this);
+    private DatabaseHandler db = new DatabaseHandler(this);
 
     @Nullable
     @Override
@@ -30,9 +33,8 @@ public class WatcherService extends Service {
 
     @Override
     public void onCreate() {
-        // TODO Auto-generated method stub
         super.onCreate();
-        if (db.getAllWatchedApps() == null)
+        if (db.getAllWatchedApps().isEmpty())
             stopservice();
         else
             startservice();
@@ -40,7 +42,6 @@ public class WatcherService extends Service {
 
     @Override
     public void onDestroy() {
-        // TODO Auto-generated method stub
         Log.d("d", "dessssssssssssssssssssssss");
         super.onDestroy();
         stopservice();
@@ -54,21 +55,21 @@ public class WatcherService extends Service {
         Log.d("a", "first time");
         timer.scheduleAtFixedRate(new TimerTask() {
             public void run() {
-                List<ListElement> watchedApps = db.getAllWatchedApps();
-                for(ListElement app : watchedApps){
-                    Long received1 = TrafficStats.getUidRxBytes(app.getUID());
-                    Long transmitted1 = TrafficStats.getUidTxBytes(app.getUID());
+                List<WatchedApp> watchedApps = db.getAllWatchedApps();
+                for (WatchedApp app : watchedApps) {
+                    Long received1 = TrafficStats.getUidRxBytes(app.getUid());
+                    Long transmitted1 = TrafficStats.getUidTxBytes(app.getUid());
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    Long received2 = TrafficStats.getUidRxBytes(app.getUID());
-                    Long transmitted2 = TrafficStats.getUidTxBytes(app.getUID());
+                    Long received2 = TrafficStats.getUidRxBytes(app.getUid());
+                    Long transmitted2 = TrafficStats.getUidTxBytes(app.getUid());
                     ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
                     NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
 
-                    if ((received1 != received2 || transmitted1 != transmitted2) &&
+                    if ((!received1.equals(received2) || !transmitted1.equals(transmitted2)) &&
                             ((app.isWifiSelected() == (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI)) ||
                                     (app.isMobDataSelected() == (activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE)) ))
                         Log.d("dd", app.getAppName()+ " watched app using network!");
